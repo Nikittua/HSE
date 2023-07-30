@@ -9,6 +9,7 @@
 
 using namespace std;
 
+
 string inputFile = "data.txt";
 string outputFile = "output.txt";
 string timeStampsFile = "timestamps.txt";

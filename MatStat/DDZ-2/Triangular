@@ -1,0 +1,247 @@
+import matplotlib.pyplot as plt
+from scipy.stats import triang
+import random
+import math
+import scipy.stats as st
+from statsmodels.distributions.empirical_distribution import ECDF
+import numpy as np
+from random import choice
+from scipy.stats import norm
+import pandas as pd
+import statistics
+# https://www.geeksforgeeks.org/python-triangular-distribution-in-statistics/
+
+def Triangle(theta):
+    u = random.uniform(0, 1)
+    if u < theta:
+        return round(math.sqrt(u * theta), 6)
+    else:
+        return round(1 - math.sqrt((1-theta-u+u*theta)), 6)
+def eCDF(t, sample):
+    return np.count_nonzero(np.array(sample) < t)/len(sample)
+def CDFt(x, theta):
+    if x < 0:
+        return 0
+    if x <= theta:
+        return (x**2)/theta
+    if x <= 1:
+        return 1-((1-x)**2)/(1-theta)
+    return 1
+def sampling(theta, size):
+    sample = list()
+    for i in range(size):
+        sample += [Triangle(theta)]
+    return sample
+
+# theta = 0.35
+# X = np.arange(-0.1, 1.1, 0.01)
+# Y_CDF = [CDFt(x, theta) for x in X]
+# nlist = [5, 10, 100, 200, 400, 600, 800, 1000]
+# samples = []
+# for n in nlist:
+#     with open(f'poiss_{n}_sample.txt', 'w', encoding='utf-8') as file:
+#             sample = sampling(theta,n)
+#             file.write(str(sampling(theta,n)))
+#             file.close
+#     samples.append(sample)
+
+
+
+
+# 3.1
+# Лекции страница 9
+expected_value = lambda values: sum(values) / len(values)
+standard_deviation = lambda values, expected_value: np.sqrt(
+    sum((v - expected_value) ** 2 for v in values) / len(values)
+)
+
+theta = 0.35
+nline = [5,10,100,200,400,600,800,1000]
+samples = []
+for n in nline:
+    sample = sampling(theta,n)
+    samples.append(sample)
+    for sample in samples:
+        mean = expected_value(sample)*3-1
+        print(
+            '''overall population:{1}
+                    expected value: {0}
+            '''.format(mean, standard_deviation(sample, mean))
+        )
+
+
+# log_likelihood = lambda rate: sum(np.log(expon.pdf(v, scale=rate)) for v in R)
+
+# rates = np.arange(1, 8, 0.01)
+# estimates = [log_likelihood(r) for r in rates]
+
+# plt.xlabel('parameter')
+# plt.plot(rates, estimates)
+# print('parameter value: ', rates[estimates.index(max(estimates))])
+
+
+# def get_sample(n):
+#     return np.random.triangular(0, 0.35, 1, n)
+
+# #3.2
+# sample = get_sample(1000)
+# ecdf = ECDF(sample)
+# plt.plot(ecdf.x, ecdf.y)
+# # plt.show()
+
+# 3.3
+# log_likelihood = lambda rate: sum(np.log(triang.pdf(v, rate)) for v in sample)
+# rate = np.arange(0, 1, 0.01)
+# estimate = [log_likelihood(r) for r in rate]
+# plt.xlabel('parameter')
+# plt.plot(rate, estimate)
+# # print('parameter value: ', rate[estimate.index(max(estimate))])
+
+
+# def Triangle(theta):
+#     u = random.uniform(0, 1)
+#     if u < theta:
+#         return round(math.sqrt(u * theta), 6)
+#     else:
+#         return round(1 - math.sqrt((1-theta-u+u*theta)), 6)
+# def eCDF(t, sample):
+#     return np.count_nonzero(np.array(sample) < t)/len(sample)
+# def CDFt(x, theta):
+#     if x < 0:
+#         return 0
+#     if x <= theta:
+#         return (x**2)/theta
+#     if x <= 1:
+#         return 1-((1-x)**2)/(1-theta)
+#     return 1
+# def sampling(theta, size):
+#     sample = list()
+#     for i in range(size):
+#         sample += [Triangle(theta)]
+#     return sample
+
+# theta = 0.35
+# X = np.arange(-0.1, 1.1, 0.01)
+# Y_CDF = [CDFt(x, theta) for x in X]
+# nlist = [5, 10, 100, 200, 400, 600, 800, 1000]
+# samples = []
+# for n in nlist:
+#     with open(f'poiss_{n}_sample.txt', 'w', encoding='utf-8') as file:
+#             sample = sampling(theta,n)
+#             file.write(str(sampling(theta,n)))
+#             file.close
+#     samples.append(sample)
+#     for sample in samples:
+#         Y_eCDF = [eCDF(x, sample) for x in X]
+        # plt.plot(X, Y_eCDF, label=r'$F_n(x)$')
+        # plt.plot(X, Y_CDF, label=r'$F_{\xi}(x)$')
+        # plt.legend()
+        # plt.savefig(f'triang_{n}_emperical.png', dpi=400, bbox_inches='tight')
+        # plt.close()
+
+
+# Dmn
+# ns,ms,ds = [],[],[]
+# nlist = [5, 10, 100,200,400,600,800,1000]
+# for i, n in enumerate(nlist):
+#     for j in range(len(nlist)-i-1):
+#         m=nlist[i+j+1]
+
+#         ns.append(int(n))
+#         ms.append(int(m))
+
+#         Yn_eCDF = np.array([eCDF(x, samples[i]) for x in X])
+#         Ym_eCDF = np.array([eCDF(x, samples[i+j+1]) for x in X])
+#         D = np.sqrt((n*m)/(n+m))*max(np.abs(Yn_eCDF-Ym_eCDF))
+#         ds.append(D)
+# data = {'n':ns,'m':ms,'Dmn':ds}
+# pd.DataFrame(data)
+# print(pd.DataFrame(data))
+
+
+
+# def freq_poly():
+#     theta = 0.35
+#     nlist = [5, 10, 100, 200, 400, 600, 800, 1000]
+#     samples = []
+#     for n in nlist:
+#         sample = sampling(theta, n)
+#         samples.append(sample)
+#         for sample in samples:
+#             fig, ax = plt.subplots()
+#             Y, bins, patches = ax.hist(sample, 11, alpha=0.5)
+#             X = []
+#             for i in range(len(bins)-1):
+#                 X.append((bins[i]+bins[i+1])/2)
+#             plt.plot(X, Y)
+#             fig.tight_layout()
+#             plt.savefig(f'poiss_polygon_n_{n}.png', dpi=400, bbox_inches='tight')
+
+
+
+# def PDF_t(x,theta=0.35):
+#     if x<0 or x>1:
+#         return 0
+#     return 2*x/theta if x<=theta else 2*(1-x)/(1-theta)
+
+# x = np.arange(-0.1, 1.1, 0.01)
+# Y = [PDF_t(i, 0.35) for i in x]
+# plt.plot(x, Y)
+# plt.savefig('triag_PDF', dpi=100, bbox_inches='tight')
+
+
+# fig, ax = plt.subplots()
+# Y, bins, patches = ax.hist(sampling(0.35,10000000), 100, alpha=0.5)
+# X = []
+# for i in range(len(bins)-1):
+#     X.append((bins[i]+bins[i+1])/2)
+# plt.plot(X, Y)
+# fig.tight_layout()
+# plt.savefig('PDf+freq_poly', dpi=400, bbox_inches='tight')
+
+
+# X = np.arange(-0.1, 1.1, 0.01)
+# def eCDF(t,sample):
+
+# def CDFt(x, theta):
+#     if x<0:
+#         return 0
+#     if x<=theta:
+#         return (x**2)/theta
+#     if x<=1:
+#         return 1-((1-x)**2)/(1-theta)
+#     return 1
+
+# Y_CDF = [CDFt(x, theta) for x in X]
+
+# for sample in samples:
+#     Y_CDF = [eCDF(x, theta) for x in X]
+#     plt.plot(X, Y_CDF, label='n = {}'.format(n))
+#     plt.plot(X, Y_CDF, label='CDF')
+#     plt.legend()
+#     plt.show()
+
+
+# def sample_mean(sample):
+#     return sum(sample)/len(sample)
+
+
+
+# mean = 0.4500000
+# variance = 0.0429
+# nlist = [5, 10, 100, 200, 400, 600, 800, 1000,100000]
+# samples = []
+# for n in nlist:
+#     sample = sampling(theta, n)
+#     samples.append(sample)
+
+# sms, svs,d1,d2 = [],[],[],[]
+# for sample in samples:
+#     sms.append(sample_mean(sample))
+#     svs.append(statistics.variance(sample))
+#     d1.append(np.abs(sample_mean(sample)-mean))
+#     d2.append(np.abs(statistics.variance(sample)-variance))
+# data = { 'n':nlist, r'$\overline{X}$' :sms , 
+# r'$\overline{S}^2$':svs, r'$|\overline{X} - M_{\xi}|$':d1, r'$|\overline{S}^2 - D_{\xi}|$':d2}
+# pd.DataFrame(data)
+# pd.DataFrame(data).to_csv('poiss.csv', index=False)

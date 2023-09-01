@@ -1,10 +1,11 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream> // Добавим для работы с файлами
 
 int main() {
-    // Выполняем команду ps с опциями для получения PID, nice value и команды
-    FILE* pipe = popen("ps -eo pid,ni,cmd", "r");
+    // Выполняем команду ps с опциями для получения nice value и времени работы
+    FILE* pipe = popen("ps -eo ni,etime", "r");
     if (!pipe) {
         std::cerr << "Ошибка при выполнении команды ps." << std::endl;
         return 1;
@@ -12,18 +13,23 @@ int main() {
 
     // Парсим вывод команды
     char buffer[128];
-    while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
-        int pid, niceValue;
-        char cmd[128];
+    std::ofstream outfile("your_file.txt"); // Открываем файл для записи
 
-        // Используем sscanf для извлечения PID, nice value и команды
-        if (sscanf(buffer, "%d %d %[^\n]", &pid, &niceValue, cmd) == 3) {
-            if (niceValue > 30) {
-                std::cout << "PR = 20 + Nice Value: " << 20 + niceValue << ", Command: " << cmd << std::endl;;
+    while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+        int niceValue;
+        char etime[128];
+        // Используем sscanf для извлечения nice value и времени работы
+        if (sscanf(buffer, "%d %s", &niceValue, etime) == 2) {
+            if (niceValue > 10) {
+                // Записываем nice value и время работы процессов с niceValue > 30 в файл
+                outfile << "Nice: " << niceValue << "\n" << "Time: " << etime << std::endl;
             }
         }
     }
 
+    // Закрываем файл и pipe
+    outfile.close();
     pclose(pipe);
+
     return 0;
 }

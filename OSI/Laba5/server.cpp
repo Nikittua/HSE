@@ -32,19 +32,29 @@ int main()
         printf("msgget: msgget succeeded: msqid = %d\n", msqid);
     }
 
-    sbuf.mtype = 1; // Устанавливаем тип сообщения
-    strcpy(sbuf.mtext, "I am in the queue?"); // Устанавливаем текст сообщения
-
-    buf_length = strlen(sbuf.mtext) + 1;
-
-    // Отправляем сообщение в очередь
-    if (msgsnd(msqid, &sbuf, buf_length, IPC_NOWAIT) < 0) {
-        printf("%d, %ld, %s, %d\n", msqid, sbuf.mtype, sbuf.mtext, buf_length);
-        perror("msgsnd");       // Выводим сообщение об ошибке, если отправка не удалась
+    // Открываем файл для чтения
+    FILE* file = fopen("your_file.txt", "r");
+    if (!file) {
+        perror("fopen");
         exit(1);
-    } else {
-        printf("Message: \"%s\" Sent\n", sbuf.mtext);
     }
 
+    // Читаем содержимое файла и отправляем его в очередь
+    sbuf.mtype = 1; // Устанавливаем тип сообщения
+    while (fgets(sbuf.mtext, MSGSZ, file) != NULL) {
+        buf_length = strlen(sbuf.mtext) + 1;
+
+        // Отправляем сообщение в очередь
+        if (msgsnd(msqid, &sbuf, buf_length, IPC_NOWAIT) < 0) {
+            perror("msgsnd");       // Выводим сообщение об ошибке, если отправка не удалась
+            fclose(file);
+            exit(1);
+        } else {
+            printf("Message send: ");
+            printf(sbuf.mtext);
+        }
+    }
+
+    fclose(file); // Закрываем файл
     exit(0);
 }

@@ -11,26 +11,40 @@
 процесса, а также время, когда из очереди было прочитано самое последнее сообщение. 
 Удалить очередь сообщений.
 
-В качестве сервера выступает файл: `server.cpp`
+## server.cpp
 
-В качестве клиента выступает файл: `client.cpp`
-
-# Как запустить код
-
+Читает из файла your_file.txt и каждую строку 
+в очередь сообщений.
 
 ```bash
 # Server
 g++ -o server server.cpp
-./server.cpp
+./server
 -------------------------
 
 Output:
-Calling msgget with key 0xa and flag 01666
-msgget: msgget succeeded: msqid = 32768
-Message: "Тут должно быть сообщение" Sent
+Calling msgget with key 0xa and flag 0666
+msgget: msgget succeeded: msqid = 327680
+Message send: Nice:19
+Message send: Time:36-10:23:05
+
 ```
 
+## get_pid.cpp
+Выполняет команду `"ps -eo ni,etime,cmd", "r"` затем парсит её и записывает имя и время работы процесса построчно в файл
 
+```bash
+# Server
+g++ -o get_pid get_pid.cpp
+./get_pid
+-------------------------
+
+Output:
+File was changed
+```
+## client.cpp
+
+Клиент. Читает сообщения из очереди
 
 ```bash
 # Client
@@ -41,3 +55,11 @@ g++ -o client client.cpp
 Ожидаемый вывод:
 "Тут должно быть сообщение"
 ```
+
+
+
+
+
+
+
+

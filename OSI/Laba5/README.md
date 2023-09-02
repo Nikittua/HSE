@@ -12,7 +12,6 @@
 Удалить очередь сообщений.
 
 
-
 # Файлы
 
 ## message_utils.h
@@ -91,6 +90,20 @@ g++ -o read_msg read_msg.cpp
 Полученное сообщение: Time:36-23:24:49
 ```
 
+
+
+# TODO
+
+- Понять как получить идентификатор самого «старого» работающего 
+процесса из информации об очереди: вроде как делается с помощью __msg_lrpid__, но везде написано что __msg_lrpid__ - pid последнего процесса вызвавшего __msgrcv()__. Но считается ли он самым «старым» работающим
+процессом
+- Удалить очередь сообщений: должно делаться с помощью __IPC_RMID__
+
+## Ресурсы:
+https://www.ibm.com/docs/en/aix/7.2?topic=i-ipcs-command
+https://www.opennet.ru/base/dev/ipc_msg.txt.html
+https://www.opennet.ru/docs/RUS/linux_base/node212.html
+https://it.wikireading.ru/14109
 
 
 

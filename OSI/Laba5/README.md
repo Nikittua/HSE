@@ -51,8 +51,9 @@ g++ -o server server.cpp
 Output:
 Calling msgget with key 0xa and flag 0666
 msgget: msgget succeeded: msqid = 327680
-Message send: Nice:19
-Message send: Time:36-10:23:05
+Message send: Process:khugepaged
+Message send: Time:37-02:15:26
+
 ```
 ----------------------------------------------------------------------
 

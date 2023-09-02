@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <unistd.h> // Add this for getpid()
 #include <iostream>
-
-
 #define MSGSZ 128
 
 struct message_buf {
@@ -24,7 +22,6 @@ void processPSOutputAndWriteToFile() {
         return;
     }
 
-    // Парсим вывод команды
     char buffer[128];
     std::ofstream outfile("your_file.txt"); // Открываем файл для записи
 

@@ -51,5 +51,19 @@ int getNumMessages(int msqid) {
     return buf.msg_qnum; // Возвращаем число сообщений в очереди
 }
 
+// Функция для получения самого старого процесса
+int getOldestProcessID(int msqid) {
+    struct msqid_ds buf; // Структура для получения информации о состоянии очереди
+
+    // Используем msgctl с флагом IPC_STAT, чтобы получить информацию о состоянии очереди
+    if (msgctl(msqid, IPC_STAT, &buf) == -1) {
+        perror("msgctl");
+        exit(1);
+    }
+
+    return buf.msg_lrpid; // Возвращаем идентификатор последнего процесса, который читал из очереди
+}
+
+
 #endif
 

@@ -12,6 +12,22 @@
 Удалить очередь сообщений.
 
 
+# Как выполнять
+
+```
+git clone https://github.com/Nikittua/HSE.git
+
+cd /home/user/HSE/OSI/Laba5
+
+g++ -o client client_prod.cpp
+g++ -o server server_prod.cpp
+g++ -o read read_msg.cpp
+
+./server
+./client
+
+```
+
 # Файлы
 
 ## message_utils.h

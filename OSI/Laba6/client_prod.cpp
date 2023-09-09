@@ -12,7 +12,6 @@
 #include "shared.h"
 #define MSGSZ 128
 
-
 int main() {
     int shm_id; // Идентификатор разделяемой области памяти
     key_t shm_key = 10; // Ключ для доступа к РОП

@@ -27,6 +27,15 @@ int main() {
     int numMessages = getNumMessages(msqid);
     printf("Число сообщений в очереди: %d\n", numMessages);
 
+    int oldestProcessID = getOldestProcessID(msqid);
+    printf("Идентификатор самого 'старого' работающего процесса: %d\n", oldestProcessID);
+
+    // Удаляем очередь сообщений
+    if (msgctl(msqid, IPC_RMID, NULL) == -1) {
+        perror("msgctl");
+        exit(1);
+    }
+
     exit(0);
 }
 

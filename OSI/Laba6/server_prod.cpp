@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/ipc.h>
+#include <string.h>
 #include <sys/shm.h>
+#include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -11,7 +12,6 @@
 #include "shared.h"
 
 #define MSGSZ 128
-
 
 int main() {
     int shm_id; // Идентификатор разделяемой области памяти
@@ -33,15 +33,34 @@ int main() {
     waitForClient(sem_id);
 
     // Присоединение к разделяемой области памяти
-    //Объявляет указатель на символьный массив и инициализирует его значением
     char *shared_memory_server = (char *)shmat(shm_id, NULL, 0);
 
-    // Определение времени создания файлов
-    struct stat dir_stat;
-    if (stat(".", &dir_stat) == -1) {
-        perror("stat");
+    // Получение списка файлов текущего каталога
+    DIR *dir;
+    struct dirent *entry;
+    dir = opendir(".");
+    if (dir == NULL) {
+        perror("opendir");
         exit(1);
     }
+
+    // Очищаем разделяемую область памяти перед записью
+    memset(shared_memory_server, 0, MSGSZ);
+
+    // Записываем каждое имя файла и его время создания в разделяемую область памяти
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+            struct stat file_stat;
+            char file_info[256];
+            if (stat(entry->d_name, &file_stat) == -1) {
+                perror("stat");
+                exit(1);
+            }
+            snprintf(file_info, sizeof(file_info), "%s Время создания: %s\n", entry->d_name, ctime(&file_stat.st_ctime));
+            strcat(shared_memory_server, file_info);
+        }
+    }
+    closedir(dir);
 
     // Определение идентификатора процесса, который последним отсоединялся от РОП
     struct shmid_ds shm_ds;
@@ -50,8 +69,8 @@ int main() {
         exit(1);
     }
 
-    printf("Время создания файлов: %s", ctime(&dir_stat.st_ctime));
-    
+    printf("Время создания файлов:\n%s", shared_memory_server);
+
     printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);
 
     // Отсоединение от разделяемой области памяти

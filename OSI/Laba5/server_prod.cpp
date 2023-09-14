@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h> // Add this for getpid()
+#include <unistd.h>  //Для getpid()
 #include <iostream>
 #define MSGSZ 128
 
@@ -13,6 +13,7 @@ struct message_buf {
     long mtype;
     char mtext[MSGSZ];
 };
+
 
 void processPSOutputAndWriteToFile() {
     // Выполняем команду ps с опциями для получения nice value и времени работы
@@ -44,20 +45,20 @@ void processPSOutputAndWriteToFile() {
 }
 
 int main() {
-    // Call the function to process PS output and write to the file
+    // Вызов функции для обработки вывода ps и записи в файл
     processPSOutputAndWriteToFile();
 
-    int msqid;  // Message queue identifier
-    int msgflg = IPC_CREAT | 0666; // Flags for creating the message queue
-    key_t key; // Key for accessing the message queue
-    struct message_buf sbuf; // Structure for the message
+    int msqid;  // Идентификатор очереди сообщений
+    int msgflg = IPC_CREAT | 0666; // Флаг создания очереди сообщений
+    key_t key; // Ключ для доступа к очереди
+    struct message_buf sbuf; // Структура сообщения
     size_t buf_length;
 
-    key = 10;  // Set the key for the message queue (you can use a different unique key)
+    key = 10;  // Устанавливаем ключ для доступа к очереди
 
     printf("Calling msgget with key %#x and flag %#o\n", key, msgflg);
 
-    // Create or get access to the message queue
+    // Создаем или получаем доступ к очереди сообщений
     if ((msqid = msgget(key, msgflg)) < 0) {
         perror("msgget");
         exit(1);
@@ -65,19 +66,19 @@ int main() {
         printf("msgget: msgget succeeded: msqid = %d\n", msqid);
     }
 
-    // Open the file for reading
+    //Открываем файл для чтения
     FILE* file = fopen("your_file.txt", "r");
     if (!file) {
         perror("fopen");
         exit(1);
     }
 
-    // Read the file contents and send them to the message queue
-    sbuf.mtype = 1; // Set the message type
+    // Читаем содержимое файла и отправляем его в очередь сообщений
+    sbuf.mtype = 1; // Устанавливаем тип сообщения
     while (fgets(sbuf.mtext, MSGSZ, file) != NULL) {
         buf_length = strlen(sbuf.mtext) + 1;
 
-        // Send the message to the message queue
+        // Отправляем сообщение в очередь сообщений
         if (msgsnd(msqid, &sbuf, buf_length, IPC_NOWAIT) < 0) {
             perror("msgsnd");
             fclose(file);
@@ -87,7 +88,7 @@ int main() {
         }
     }
 
-    fclose(file); // Close the file
+    fclose(file); // Закрываем файл
     exit(0);
 }
 

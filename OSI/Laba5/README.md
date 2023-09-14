@@ -118,7 +118,6 @@ g++ -o read_msg read_msg.cpp
 ~~Удалить очередь сообщений: должно делаться с помощью __IPC_RMID__~~
 
 
-
 ## Ресурсы:
 https://www.ibm.com/docs/en/aix/7.2?topic=i-ipcs-command
 https://www.opennet.ru/base/dev/ipc_msg.txt.html

@@ -9,10 +9,6 @@
 #include <iostream>
 #define MSGSZ 128
 
-struct message_buf {
-    long mtype;
-    char mtext[MSGSZ];
-};
 
 
 void processPSOutputAndWriteToFile() {

@@ -11,10 +11,18 @@
 
 #define MSGSZ 128
 
+
+// Структура для использования при чтении сообщения
 struct my_msgbuf {
     long mtype;
     char mtext[MSGSZ];
 };
+// Структура для создания сообщения и помещения его в очередь
+struct message_buf {
+    long mtype;
+    char mtext[MSGSZ];
+};
+
 
 // Функция для чтения сообщения из очереди
 void receiveMessage(int msqid, struct my_msgbuf *rbuf) {

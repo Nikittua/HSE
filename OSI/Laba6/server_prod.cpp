@@ -21,7 +21,7 @@ int main() {
     }
 
     // Присоединение к разделяемой области памяти
-    char *shared_memory_server = (char *)shmat(shm_id, NULL, 0);
+    char *shared_memory_server = (char *)shmat(shm_id, 0, 0);
 
     // Ожидание клиента
     printf("Ожидание клиента...\n");
@@ -45,7 +45,7 @@ int main() {
     shmdt(shared_memory_server);
 
     // Удаление РОП
-    if (shmctl(shm_id, IPC_RMID, NULL) == -1) {
+    if (shmctl(shm_id, IPC_RMID, 0) == -1) {
         perror("shmctl");
         exit(1);
     }

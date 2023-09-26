@@ -71,13 +71,13 @@ int main() {
     }
 
     // Получение доступа к существующему семафору
-    if ((sem_id = semget(shm_key, 1, 0)) == -1) {
+    if ((sem_id = semget(shm_key, 0, 0)) == -1) {
         perror("semget");
         exit(1);
     }
 
     // Присоединение к разделяемой области памяти
-    char *shared_memory = (char *)shmat(shm_id, NULL, 0);
+    char *shared_memory = (char *)shmat(shm_id, 0, 0);
 
     // Получение списка файлов текущего каталога
     DIR *dir;

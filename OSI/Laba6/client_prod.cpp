@@ -8,8 +8,9 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <time.h>
-
 #include "shared.h"
+
+
 #define MSGSZ 128
 
 // Функция для проверки, является ли файл исполняемым ELF-файлом
@@ -104,7 +105,7 @@ int main() {
     printf("Содержимое разделяемой области памяти (РОП):\n%s\n", shared_memory);
 
     // Увеличиваем значение семафора, чтобы сообщить серверу, что данные записаны
-    signalServer(sem_id);
+    manipulateSemaphore(sem_id, SEM_SIGNAL);
 
     // Отсоединение от разделяемой области памяти
     shmdt(shared_memory);

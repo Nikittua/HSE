@@ -1,47 +1,46 @@
-#ifndef SHARED_H
-#define SHARED_H
-
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include <errno.h>
+
+// Константы для индекса семафора и операций
+#define SEM_INDEX 0
+#define SEM_WAIT -1
+#define SEM_SIGNAL 1
 
 // Функция для создания и инициализации семафора
 int createSemaphore(key_t key) {
     int sem_id = semget(key, 1, IPC_CREAT | 0666);
     if (sem_id == -1) {
-        perror("semget");
-        exit(1);
+        // Возвращаем код ошибки
+        return errno;
     }
 
-    if (semctl(sem_id, 0, SETVAL, 0) == -1) {
-        perror("semctl");
-        exit(1);
+    if (semctl(sem_id, SEM_INDEX, SETVAL, 0) == -1) {
+        // Возвращаем код ошибки
+        return errno;
     }
 
     return sem_id;
 }
-// Функция для ожидания клиента
-void waitForClient(int sem_id) {
-    struct sembuf wait_op;
-    wait_op.sem_num = 0;// Индекс семафора в массиве
-    wait_op.sem_op = -1;// Операция ожидания
-    wait_op.sem_flg = 0;
 
-    if (semop(sem_id, &wait_op, 1) == -1) {
-        perror("semop");
-        exit(1);
-    }
-}
-// Функция для увеличения значения семафора
-void signalServer(int sem_id) {
-    struct sembuf signal_op;
-    signal_op.sem_num = 0;// Индекс семафора в массиве
-    signal_op.sem_op = 1;// Операция увеличения
-    signal_op.sem_flg = 0;
+// Функция для работы с семафором
+int manipulateSemaphore(int sem_id, int action) {
+    struct sembuf sem_op;
+    sem_op.sem_num = SEM_INDEX;
+    sem_op.sem_flg = 0;
 
-    if (semop(sem_id, &signal_op, 1) == -1) {
-        perror("semop");
-        exit(1);
+    if (action == SEM_WAIT) {
+        sem_op.sem_op = SEM_WAIT;
+    } else if (action == SEM_SIGNAL) {
+        sem_op.sem_op = SEM_SIGNAL;
+    } else {
+        return -1;
     }
+
+    if (semop(sem_id, &sem_op, 1) == -1) {
+        return errno;
+    }
+
+    return 0; // Успешное выполнение
 }
 
-#endif

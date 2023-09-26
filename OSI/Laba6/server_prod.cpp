@@ -1,14 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/shm.h>
-#include <sys/ipc.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/sem.h>
-#include <time.h>
+#include <stdlib.h>
 #include "shared.h"
 
 #define MSGSZ 128
@@ -27,14 +19,14 @@ int main() {
         perror("shmget");
         exit(1);
     }
-    
 
     // Присоединение к разделяемой области памяти
     char *shared_memory_server = (char *)shmat(shm_id, NULL, 0);
 
     // Ожидание клиента
     printf("Ожидание клиента...\n");
-    waitForClient(sem_id);
+    manipulateSemaphore(sem_id, SEM_WAIT);
+
 
     struct shmid_ds shm_ds;
     if (shmctl(shm_id, IPC_STAT, &shm_ds) == -1) {
@@ -42,8 +34,11 @@ int main() {
         exit(1);
     }
 
+
+
     // Вывод содержимого разделяемой области памяти (РОП)
     printf("Содержимое разделяемой области памяти (РОП):\n%s\n", shared_memory_server);
+
     printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);
 
     // Отсоединение от разделяемой области памяти

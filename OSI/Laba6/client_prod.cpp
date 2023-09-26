@@ -2,15 +2,40 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/shm.h>
-#include <sys/ipc.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
-#include <sys/sem.h>
+#include <fcntl.h>
 
 #include "shared.h"
 #define MSGSZ 128
+
+// Функция для проверки, является ли файл исполняемым ELF-файлом
+bool isELFExecutable(const char *filename) {
+    struct stat file_stat;
+    if (stat(filename, &file_stat) == -1) {
+        perror("stat");
+        return false;
+    }
+
+    if (S_ISREG(file_stat.st_mode) && (file_stat.st_mode & S_IXUSR)) {
+        int fd = open(filename, O_RDONLY);
+        if (fd == -1) {
+            perror("open");
+            return false;
+        }
+
+        unsigned char magic;
+        if (read(fd, &magic, 1) == 1 && magic == 0x7f) {
+            close(fd);
+            return true;
+        }
+
+        close(fd);
+    }
+
+    return false;
+}
 
 int main() {
     int shm_id; // Идентификатор разделяемой области памяти
@@ -18,14 +43,14 @@ int main() {
     int sem_id;
 
     // Получение доступа к существующей разделяемой области памяти
-    shm_id = shmget(shm_key, MSGSZ, 0666);
+    shm_id = shmget(shm_key, MSGSZ, 0);
     if (shm_id == -1) {
         perror("shmget");
         exit(1);
     }
 
     // Получение доступа к существующему семафору
-    if ((sem_id = semget(shm_key, 1, 0666)) == -1) {
+    if ((sem_id = semget(shm_key, 1, 0)) == -1) {
         perror("semget");
         exit(1);
     }
@@ -42,11 +67,13 @@ int main() {
         exit(1);
     }
 
-    // Собираем и формируем список файлов в строку
+    // Собираем и формируем список исполняемых ELF-файлов в строку
     char file_list[MSGSZ] = "";
     while ((entry = readdir(dir)) != NULL) {
-        strcat(file_list, entry->d_name);
-        strcat(file_list, "\n");
+        if (isELFExecutable(entry->d_name)) {
+            strcat(file_list, entry->d_name);
+            strcat(file_list, "\n");
+        }
     }
     closedir(dir);
 

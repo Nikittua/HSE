@@ -118,6 +118,10 @@ g++ -o read_msg read_msg.cpp
 ~~Удалить очередь сообщений: должно делаться с помощью __IPC_RMID__~~
 
 
+В message.h поменять все функции чтобы они не обращались к ядру миллион раз
+Книги в вариантах стиве и Раго Unix для профессионалов
+
+
 ## Ресурсы:
 https://www.ibm.com/docs/en/aix/7.2?topic=i-ipcs-command
 https://www.opennet.ru/base/dev/ipc_msg.txt.html

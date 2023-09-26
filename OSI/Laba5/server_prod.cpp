@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>  //Для getpid()
 #include <iostream>
+#include "message_utils.h"
+
 #define MSGSZ 128
 
 
@@ -22,7 +24,7 @@ void processPSOutputAndWriteToFile() {
     char buffer[128];
     std::ofstream outfile("your_file.txt"); // Открываем файл для записи
 
-    while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+    while (fgets(buffer, sizeof(buffer), pipe) != 0) { // считываем из pipe и помещаем в buffer
         int niceValue;
         char etime[128];
         char cmd[128];
@@ -46,15 +48,15 @@ int main() {
 
     int msqid;  // Идентификатор очереди сообщений
     int msgflg = IPC_CREAT | 0666; // Флаг создания очереди сообщений
-    key_t key; // Ключ для доступа к очереди
-    struct message_buf sbuf; // Структура сообщения
+    key_t key; // идентификатор для доступа к очереди
+    struct message_buf sbuf; // Структура сообщения для помещения его в очередь
     size_t buf_length;
 
     key = 10;  // Устанавливаем ключ для доступа к очереди
-
+ 
     printf("Calling msgget with key %#x and flag %#o\n", key, msgflg);
 
-    // Создаем или получаем доступ к очереди сообщений
+    // Создаем очередь сообщений
     if ((msqid = msgget(key, msgflg)) < 0) {
         perror("msgget");
         exit(1);
@@ -71,8 +73,8 @@ int main() {
 
     // Читаем содержимое файла и отправляем его в очередь сообщений
     sbuf.mtype = 1; // Устанавливаем тип сообщения
-    while (fgets(sbuf.mtext, MSGSZ, file) != NULL) {
-        buf_length = strlen(sbuf.mtext) + 1;
+    while (fgets(sbuf.mtext, MSGSZ, file) != 0) { // считываем из file и помещаем в mtext в структуре сообщеня
+        buf_length = strlen(sbuf.mtext);
 
         // Отправляем сообщение в очередь сообщений
         if (msgsnd(msqid, &sbuf, buf_length, IPC_NOWAIT) < 0) {

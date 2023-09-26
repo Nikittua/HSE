@@ -1,8 +1,6 @@
-#ifndef MESSAGE_UTILS_H
-#define MESSAGE_UTILS_H
 
 #include <sys/types.h>
-#include <sys/ipc.h>
+#include <sys/ipc.h> // в некоторых системах ipch включен в msg.h
 #include <sys/msg.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,17 +15,22 @@ struct my_msgbuf {
     long mtype;
     char mtext[MSGSZ];
 };
+
 // Структура для создания сообщения и помещения его в очередь
 struct message_buf {
     long mtype;
     char mtext[MSGSZ];
+    // указататель на следюущее сообщние
+    // длина сообщения
 };
+
+// уточинть касательно полей в структуре сообщения
 
 
 // Функция для чтения сообщения из очереди
 void receiveMessage(int msqid, struct my_msgbuf *rbuf) {
     // Получаем сообщение из очереди с типом 1
-    if (msgrcv(msqid, rbuf, MSGSZ, 1, 0) < 0) {
+    if (msgrcv(msqid, rbuf, MSGSZ, 1, IPC_NOWAIT) < 0) {
         perror("msgrcv"); // Выводим сообщение об ошибке, если не удается получить сообщение
         exit(1);
     }
@@ -38,6 +41,7 @@ time_t getLastReadTime(int msqid) {
     struct msqid_ds buf; // Структура для получения информации о состоянии очереди
 
     // Используем msgctl с флагом IPC_STAT, чтобы получить информацию о состоянии очереди
+    // копирую из таблицы ядра запись с нужным дискриптором в buf
     if (msgctl(msqid, IPC_STAT, &buf) == -1) {
         perror("msgctl");
         exit(1);

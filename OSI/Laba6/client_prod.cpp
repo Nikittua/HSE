@@ -6,6 +6,8 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdbool.h>
+#include <time.h>
 
 #include "shared.h"
 #define MSGSZ 128
@@ -35,6 +37,24 @@ bool isELFExecutable(const char *filename) {
     }
 
     return false;
+}
+
+// Функция для получения времени создания файла
+char* getFileCreationTime(const char *filename) {
+    struct stat file_stat;
+    if (stat(filename, &file_stat) == -1) {
+        perror("stat");
+        return "Ошибка при определении времени создания";
+    }
+
+    char *time_str = ctime(&file_stat.st_ctime);
+    // Удаление символа новой строки из строки времени
+    size_t len = strlen(time_str);
+    if (len > 0 && time_str[len - 1] == '\n') {
+        time_str[len - 1] = '\0';
+    }
+
+    return time_str;
 }
 
 int main() {
@@ -71,8 +91,9 @@ int main() {
     char file_list[MSGSZ] = "";
     while ((entry = readdir(dir)) != NULL) {
         if (isELFExecutable(entry->d_name)) {
-            strcat(file_list, entry->d_name);
-            strcat(file_list, "\n");
+            char file_info[256];
+            snprintf(file_info, sizeof(file_info), "%s Время создания: %s\n", entry->d_name, getFileCreationTime(entry->d_name));
+            strcat(file_list, file_info);
         }
     }
     closedir(dir);

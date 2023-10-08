@@ -1,46 +1,39 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 // Константы для индекса семафора и операций
-#define SEM_INDEX 0
-#define SEM_WAIT -1
-#define SEM_SIGNAL 1
+#define SEM_SERVER 0
+#define SEM_CLIENT 1
 
 // Функция для создания и инициализации семафора
 int createSemaphore(key_t key) {
-    int sem_id = semget(key, 1, IPC_CREAT | 0666);
+    int sem_id = semget(key, 2, IPC_CREAT | 0666); // Изменено с 1 на 2, так как у вас два семафора
     if (sem_id == -1) {
-        // Возвращаем код ошибки
-        return -1;
+        perror("semget");
+        exit(EXIT_FAILURE);
     }
 
-    if (semctl(sem_id, SEM_INDEX, SETVAL, 0) == -1) {
-        // Возвращаем код ошибки
-        return -1;
+    // Инициализация семафоров
+    if (semctl(sem_id, SEM_SERVER, SETVAL, 0) == -1 || semctl(sem_id, SEM_CLIENT, SETVAL, 0) == -1) {
+        perror("semctl");
+        exit(EXIT_FAILURE);
     }
 
     return sem_id;
 }
 
 // Функция для работы с семафором
-int manipulateSemaphore(int sem_id, int action) {
-    struct sembuf sem_op;
-    sem_op.sem_num = SEM_INDEX;
-    sem_op.sem_flg = 0;
+void manipulateSemaphore(int sem_id, int sem_num, int op) {
+    struct sembuf semaphore;
+    semaphore.sem_num = sem_num; // Номер семафора, с которым мы работаем
+    semaphore.sem_op = op;       // Операция: -1 для блокировки, 1 для разблокировки
+    semaphore.sem_flg = 0;       // Флаги (обычно 0)
 
-    if (action == SEM_WAIT) {
-        sem_op.sem_op = SEM_WAIT;
-    } else if (action == SEM_SIGNAL) {
-        sem_op.sem_op = SEM_SIGNAL;
-    } else {
-        return -1;
+    if (semop(sem_id, &semaphore, 1) == -1) {
+        perror("semop");
+        exit(EXIT_FAILURE);
     }
-
-    if (semop(sem_id, &sem_op, 1) == -1) {
-        return errno;
-    }
-
-    return 0; // Успешное выполнение
 }
-

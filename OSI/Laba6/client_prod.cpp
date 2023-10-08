@@ -1,12 +1,12 @@
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h>
+#include <iostream>
+#include <cstdlib>
 #include <sys/stat.h>
-#include <unistd.h>
+#include <cstring>
+#include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include <dirent.h>
+#include <unistd.h>
 #include "shared.h"
 
 #define MSGSZ 2048  // Увеличим размер, чтобы уместить больше информации
@@ -53,7 +53,7 @@ int main() {
         exit(1);
     }
 
-    if ((sem_id = semget(shm_key, 0, 0)) == -1) {
+    if ((sem_id = semget(shm_key, 2, 0)) == -1) {
         perror("semget");
         exit(1);
     }
@@ -62,10 +62,11 @@ int main() {
 
     listELFExecutablesWithTime(shared_memory);
 
-    // Assuming you have a manipulateSemaphore function
-    manipulateSemaphore(sem_id, SEM_SIGNAL);
-
+    // Разблокировать сервер и заблокировать себя
+    manipulateSemaphore(sem_id, SEM_SERVER, 1); // разблокировка сервера
+    manipulateSemaphore(sem_id, SEM_CLIENT, -1);  // блокировка себя
     shmdt(shared_memory);
+
 
     return 0;
 }

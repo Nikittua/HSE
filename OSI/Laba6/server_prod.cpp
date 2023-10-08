@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "shared.h"
 
-#define MSGSZ 128
+#define MSGSZ 2048
 
 int main() {
     int shm_id; // Идентификатор разделяемой области памяти

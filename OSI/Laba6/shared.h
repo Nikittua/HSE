@@ -12,12 +12,12 @@ int createSemaphore(key_t key) {
     int sem_id = semget(key, 1, IPC_CREAT | 0666);
     if (sem_id == -1) {
         // Возвращаем код ошибки
-        return errno;
+        return -1;
     }
 
     if (semctl(sem_id, SEM_INDEX, SETVAL, 0) == -1) {
         // Возвращаем код ошибки
-        return errno;
+        return -1;
     }
 
     return sem_id;

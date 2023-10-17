@@ -1,12 +1,18 @@
+#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-// Константы для индекса семафора и операций
 #define SEM_SERVER 0
 #define SEM_CLIENT 1
+
+union semun {
+    int val;               // значение для SETVAL
+    struct semid_ds *buf;  // буфер для IPC_STAT, IPC_SET
+    unsigned short *array; // массив для GETALL, SETALL
+    struct seminfo *__buf; // буфер для IPC_INFO
+};
 
 // Функция для создания и инициализации семафора
 int createSemaphore(key_t key) {
@@ -16,14 +22,18 @@ int createSemaphore(key_t key) {
         exit(EXIT_FAILURE);
     }
 
+    union semun arg;
+    arg.val = 0; // Установка начального значения семафора
+
     // Инициализация семафоров
-    if (semctl(sem_id, SEM_SERVER, SETVAL, 0) == -1 || semctl(sem_id, SEM_CLIENT, SETVAL, 0) == -1) {
+    if (semctl(sem_id, SEM_SERVER, SETVAL, arg) == -1 || semctl(sem_id, SEM_CLIENT, SETVAL, arg) == -1) {
         perror("semctl");
         exit(EXIT_FAILURE);
     }
 
     return sem_id;
 }
+
 
 // Функция для работы с семафором
 void manipulateSemaphore(int sem_id, int sem_num, int op) {

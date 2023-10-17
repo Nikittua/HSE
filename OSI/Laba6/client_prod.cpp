@@ -64,7 +64,7 @@ int main() {
 
     // Разблокировать сервер и заблокировать себя
     manipulateSemaphore(sem_id, SEM_SERVER, 1); // разблокировка сервера
-    manipulateSemaphore(sem_id, SEM_CLIENT, -1);  // блокировка себя
+    // manipulateSemaphore(sem_id, SEM_CLIENT, -1);  // блокировка себя
     shmdt(shared_memory);
 
 

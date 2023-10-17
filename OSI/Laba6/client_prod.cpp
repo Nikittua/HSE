@@ -11,7 +11,7 @@
 
 #define MSGSZ 2048  // Увеличим размер, чтобы уместить больше информации
 
-// Function to check if a file is an ELF executable using popen
+
 void listELFExecutables(char *output) {
     FILE *fp = popen("file * | grep ELF | cut -f 1 -d :", "r");
     if (fp == NULL) {
@@ -22,13 +22,11 @@ void listELFExecutables(char *output) {
     char result[256];
 
     while (fgets(result, sizeof(result), fp) != NULL) {
-        // Remove trailing newline character
         size_t len = strlen(result);
         if (len > 0 && result[len - 1] == '\n') {
             result[len - 1] = '\0';
         }
 
-        // Append the file name to the output
         sprintf(output + strlen(output), "%s\n", result);
     }
 
@@ -48,6 +46,7 @@ int main() {
         perror("shmget");
         exit(1);
     }
+
 
     if ((sem_id = semget(shm_key, 0, 0)) == -1) {
         perror("semget");

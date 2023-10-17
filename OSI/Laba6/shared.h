@@ -21,6 +21,7 @@ int createSemaphore(key_t key) {
         exit(EXIT_FAILURE);
     }
 
+
     union semun arg;
     arg.val = 0; // Установка начального значения семафора
 

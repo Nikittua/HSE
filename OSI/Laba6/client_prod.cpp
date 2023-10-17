@@ -36,7 +36,7 @@ void listELFExecutablesWithTime(char *output) {
         //     exit(1);
         // }
 
-        sprintf(output + strlen(output), "%s (Created at: %s)\n", result, ctime(&file_stat.st_ctime));
+        sprintf(output + strlen(output), "%s Created at: %s\n", result, ctime(&file_stat.st_ctime));
     }
 
     pclose(fp);
@@ -47,20 +47,19 @@ int main() {
     key_t shm_key = 10;
     int sem_id;
 
-    shm_id = shmget(shm_key, MSGSZ, IPC_CREAT | 0666);
+    shm_id = shmget(shm_key, 0, 0);
     if (shm_id == -1) {
         perror("shmget");
         exit(1);
     }
 
-    if ((sem_id = semget(shm_key, 2, 0)) == -1) {
+    if ((sem_id = semget(shm_key, 0, 0)) == -1) {
         perror("semget");
         exit(1);
     }
 
     char *shared_memory = (char *)shmat(shm_id, 0, 0);
 
-    listELFExecutablesWithTime(shared_memory);
 
     // Разблокировать сервер и заблокировать себя
     manipulateSemaphore(sem_id, SEM_SERVER, 1); // разблокировка сервера

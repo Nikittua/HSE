@@ -25,11 +25,11 @@ int createSemaphore(key_t key) {
     union semun arg;
     arg.val = 0; // Установка начального значения семафора
 
-    // // Инициализация семафоров
-    // if (semctl(sem_id, SEM_SERVER, SETVAL, arg) == -1 || semctl(sem_id, SEM_CLIENT, SETVAL, arg) == -1) {
-    //     perror("semctl");
-    //     exit(EXIT_FAILURE);
-    // }
+    // Инициализация семафоров
+    if (semctl(sem_id, SEM_SERVER, SETVAL, arg) == -1 || semctl(sem_id, SEM_CLIENT, SETVAL, arg) == -1) {
+        perror("semctl");
+        exit(EXIT_FAILURE);
+    }
 
     return sem_id;
 }

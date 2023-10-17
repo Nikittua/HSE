@@ -27,6 +27,7 @@ int main() {
 
     // Присоединение к разделяемой области памяти
     char *shared_memory_server = (char *)shmat(shm_id, 0, 0);
+    memset(shared_memory_server, 0, MSGSZ);
 
     // Ожидание клиента
     printf("Ожидание клиента...\n");
@@ -40,6 +41,7 @@ int main() {
 
     // Вывод содержимого разделяемой области памяти (РОП)
     printf("Содержимое разделяемой области памятиs (РОП):\n%s\n", shared_memory_server);
+
     printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);
 
 

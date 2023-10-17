@@ -47,7 +47,7 @@ int main() {
     key_t shm_key = 10;
     int sem_id;
 
-    shm_id = shmget(shm_key, MSGSZ, IPC_CREAT | 0666);
+    shm_id = shmget(shm_key, 0, 0);
     if (shm_id == -1) {
         perror("shmget");
         exit(1);

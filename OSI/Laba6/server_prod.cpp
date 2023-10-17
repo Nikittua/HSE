@@ -64,7 +64,7 @@ int main() {
         printf("Имя файла: %s, Время создания: %s", filename, ctime(&creation_time));
         filename = strtok(NULL, "\n");
     }
-
+    printf("\n")
     printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);
 
 

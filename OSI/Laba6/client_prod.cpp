@@ -20,7 +20,6 @@ void listELFExecutables(char *output) {
     }
 
     char result[256];
-    sprintf(output, "ELF Executables:\n");
 
     while (fgets(result, sizeof(result), fp) != NULL) {
         // Remove trailing newline character
@@ -32,6 +31,9 @@ void listELFExecutables(char *output) {
         // Append the file name to the output
         sprintf(output + strlen(output), "%s\n", result);
     }
+
+    // Print the result after reading from the pipe
+    printf("ELF Executables:\n%s", output);
 
     pclose(fp);
 }

@@ -46,8 +46,18 @@ int main() {
     printf("Ожидание клиента...\n");
     manipulateSemaphore(sem_id, SEM_SERVER, -1); // Блокировка SEM_SERVER
 
+    struct shmid_ds shm_ds;
+    if (shmctl(shm_id, IPC_STAT, &shm_ds) == -1) {
+        perror("shmctl");
+        exit(1);
+    }
+
+    
     // Получение имен файлов из разделяемой области памяти
     printf("Содержимое разделяемой области памяти (РОП):\n%s\n", shared_memory_server);
+    
+    printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);
+
 
     // Обработка имен файлов и вывод времени их создания
     char *filename = strtok(shared_memory_server, "\n");

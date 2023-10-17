@@ -11,6 +11,16 @@
 
 #define MSGSZ 2048
 
+// Функция для получения времени создания файла
+time_t getFileCreationTime(const char *filename) {
+    struct stat attr;
+    if (stat(filename, &attr) == -1) {
+        perror("stat");
+        exit(EXIT_FAILURE);
+    }
+    return attr.st_ctime;
+}
+
 int main() {
     int shm_id; // Идентификатор разделяемой области памяти
     key_t shm_key = 10; // Ключ для доступа к РОП
@@ -28,25 +38,22 @@ int main() {
 
     // Присоединение к разделяемой области памяти
     char *shared_memory_server = (char *)shmat(shm_id, 0, 0);
-    memset(shared_memory_server, 0, MSGSZ);
+    // memset(shared_memory_server, 0, MSGSZ); // Не нужно обнулять память, так как она уже была обнулена при создании
 
     // Ожидание клиента
     printf("Ожидание клиента...\n");
     manipulateSemaphore(sem_id, SEM_SERVER, -1); // Блокировка SEM_SERVER
 
-    struct shmid_ds shm_ds;
-    if (shmctl(shm_id, IPC_STAT, &shm_ds) == -1) {
-        perror("shmctl");
-        exit(1);
-    }
-
-
-
-    // Вывод содержимого разделяемой области памяти (РОП)
+    // Получение имен файлов из разделяемой области памяти
     printf("Содержимое разделяемой области памяти (РОП):\n%s\n", shared_memory_server);
 
-    printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);
-
+    // Обработка имен файлов и вывод времени их создания
+    char *filename = strtok(shared_memory_server, "\n");
+    while (filename != NULL) {
+        time_t creation_time = getFileCreationTime(filename);
+        printf("Имя файла: %s, Время создания: %s", filename, ctime(&creation_time));
+        filename = strtok(NULL, "\n");
+    }
 
     // Отсоединение от разделяемой области памяти
     shmdt(shared_memory_server);

@@ -15,7 +15,7 @@ union semun {
 
 // Функция для создания и инициализации семафора
 int createSemaphore(key_t key) {
-    int sem_id = semget(key, 1, IPC_CREAT | 0666); // Изменено с 1 на 2, так как у вас два семафора
+    int sem_id = semget(key, 1, IPC_CREAT | 0666); 
     if (sem_id == -1) {
         perror("semget");
         exit(EXIT_FAILURE);

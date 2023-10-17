@@ -54,10 +54,8 @@ int main() {
 
     
     // Получение имен файлов из разделяемой области памяти
-    printf("Содержимое разделяемой области памяти (РОП):\n%s\n", shared_memory_server);
+    // printf("Содержимое разделяемой области памяти (РОП):\n%s\n", shared_memory_server);
     
-    printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);
-
 
     // Обработка имен файлов и вывод времени их создания
     char *filename = strtok(shared_memory_server, "\n");
@@ -66,6 +64,9 @@ int main() {
         printf("Имя файла: %s, Время создания: %s", filename, ctime(&creation_time));
         filename = strtok(NULL, "\n");
     }
+
+    printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);
+
 
     // Отсоединение от разделяемой области памяти
     shmdt(shared_memory_server);

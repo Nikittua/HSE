@@ -21,6 +21,8 @@ time_t getFileCreationTime(const char *filename) {
     return attr.st_ctime;
 }
 
+//  ls -l $(file * | grep ELF | cut -f 1 -d :) | awk '{print $6, $7, $8}'
+
 int main() {
     int shm_id; // Идентификатор разделяемой области памяти
     key_t shm_key = 10; // Ключ для доступа к РОП
@@ -38,7 +40,7 @@ int main() {
 
     // Присоединение к разделяемой области памяти
     char *shared_memory_server = (char *)shmat(shm_id, 0, 0);
-    // memset(shared_memory_server, 0, MSGSZ); // Не нужно обнулять память, так как она уже была обнулена при создании
+    memset(shared_memory_server, 0, MSGSZ);
 
     // Ожидание клиента
     printf("Ожидание клиента...\n");

@@ -53,7 +53,7 @@ int main() {
         exit(1);
     }
 
-    if ((sem_id = semget(shm_key, 2, 0)) == -1) {
+    if ((sem_id = semget(shm_key, 0, 0)) == -1) {
         perror("semget");
         exit(1);
     }

@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #define SEM_SERVER 0
-#define SEM_CLIENT 1
 
 union semun {
     int val;               // значение для SETVAL
@@ -16,7 +15,7 @@ union semun {
 
 // Функция для создания и инициализации семафора
 int createSemaphore(key_t key) {
-    int sem_id = semget(key, 2, IPC_CREAT | 0666); // Изменено с 1 на 2, так как у вас два семафора
+    int sem_id = semget(key, 1, IPC_CREAT | 0666); // Изменено с 1 на 2, так как у вас два семафора
     if (sem_id == -1) {
         perror("semget");
         exit(EXIT_FAILURE);
@@ -26,7 +25,7 @@ int createSemaphore(key_t key) {
     arg.val = 0; // Установка начального значения семафора
 
     // Инициализация семафоров
-    if (semctl(sem_id, SEM_SERVER, SETVAL, arg) == -1 || semctl(sem_id, SEM_CLIENT, SETVAL, arg) == -1) {
+    if (semctl(sem_id, SEM_SERVER, SETVAL, arg) == -1) {
         perror("semctl");
         exit(EXIT_FAILURE);
     }

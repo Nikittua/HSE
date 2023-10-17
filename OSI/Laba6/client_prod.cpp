@@ -30,13 +30,13 @@ void listELFExecutablesWithTime(char *output) {
         }
 
         // Get file creation time
-        struct stat file_stat;
-        if (stat(result, &file_stat) == -1) {
-            perror("stat");
-            exit(1);
-        }
+        // struct stat file_stat;
+        // if (stat(result, &file_stat) == -1) {
+        //     perror("stat");
+        //     exit(1);
+        // }
 
-        sprintf(output + strlen(output), "%s (Created at: %s)\n", result, ctime(&file_stat.st_ctime));
+        sprintf(output + strlen(output), "%s\n", result);
     }
 
     pclose(fp);

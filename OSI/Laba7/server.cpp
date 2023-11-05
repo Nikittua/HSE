@@ -11,7 +11,7 @@ int main()
 {
     int sock, listener;
     struct sockaddr_in addr;
-    char buf[1024];
+    char buf[4096];
     int bytes_read;
 
     listener = socket(AF_INET, SOCK_STREAM, 0);
@@ -53,3 +53,4 @@ int main()
 
     return 0;
 }
+

@@ -5,37 +5,66 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <dirent.h>
+#include <ctype.h>
 
-
-char message[] = "Hello there!\n";
-char buf[sizeof(message)];
-
-int main()
-{
+int main() {
     int sock;
     struct sockaddr_in addr;
+    char buf[4096];
 
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(sock < 0)
-    {
-        perror("socket");
+    // Определение идентификаторов системных процессов
+    DIR *dir;
+    struct dirent *entry;
+
+    dir = opendir("/proc");
+    if (dir == NULL) {
+        perror("Ошибка открытия каталога /proc");
         exit(1);
     }
 
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(3425); // или любой другой порт...
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    if(connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
-    {
-        perror("connect");
+    memset(buf, 0, sizeof(buf));
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (isdigit(entry->d_name[0])) {
+            int pid = atoi(entry->d_name);
+            if (pid <= 1000) {
+                snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "PID: %d\n", pid);
+            }
+        }
+    }
+
+    closedir(dir);
+
+    // Создаем гнездо
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        perror("socket");
         exit(2);
     }
 
-    send(sock, message, sizeof(message), 0);
-    recv(sock, buf, sizeof(message), 0);
+    // Задаем адрес сервера
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(3425); // Порт сервера
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // IP-адрес сервера
 
-    printf(buf);
+    // Устанавливаем соединение с сервером
+    if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        perror("connect");
+        exit(3);
+    }
+
+    // Отправляем данные на сервер
+    send(sock, buf, strlen(buf), 0);
+
+    // Получаем ответ от сервера
+    recv(sock, buf, sizeof(buf), 0);
+
+    printf("Ответ от сервера:\n%s\n", buf);
+
+    // Закрываем гнездо
     close(sock);
 
     return 0;
 }
+

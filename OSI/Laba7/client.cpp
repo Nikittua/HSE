@@ -43,10 +43,9 @@ int main() {
         exit(2);
     }
 
-    // Задаем адрес сервера
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(3425); // Порт сервера
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // IP-адрес сервера
+    addr.sin_port = htons(3425); 
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); 
 
     // Устанавливаем соединение с сервером
     if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {

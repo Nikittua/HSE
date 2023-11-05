@@ -6,45 +6,50 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-int main() {
-    // Создаем гнездо в домене INET
-    int sockfd;
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("Ошибка создания гнезда");
+
+int main()
+{
+    int sock, listener;
+    struct sockaddr_in addr;
+    char buf[1024];
+    int bytes_read;
+
+    listener = socket(AF_INET, SOCK_STREAM, 0);
+    if(listener < 0)
+    {
+        perror("socket");
         exit(1);
     }
 
-    // Задаем имя гнезду (привязываем его к порту)
-    struct sockaddr_in server_addr;
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(12345); // Замените на нужный порт
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-
-    if (bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        perror("Ошибка присвоения имени гнезду");
-        exit(1);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(3425);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    if(bind(listener, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+    {
+        perror("bind");
+        exit(2);
     }
 
-    printf("Сервер готов к приему данных от клиента.\n");
+    listen(listener, 1);
 
-    // Бесконечный цикл для обработки клиентских запросов
-    while (1) {
-        char buf[1024];
-        struct sockaddr_in client_addr;
-        socklen_t len = sizeof(client_addr);
+    while(1)
+    {
+        sock = accept(listener, NULL, NULL);
+        if(sock < 0)
+        {
+            perror("accept");
+            exit(3);
+        }
 
-        // Принимаем данные от клиента
-        recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&client_addr, &len);
+        while(1)
+        {
+            bytes_read = recv(sock, buf, 1024, 0);
+            if(bytes_read <= 0) break;
+            send(sock, buf, bytes_read, 0);
+        }
 
-        // Определение системной составляющей приоритета
-        int priority = getpriority(PRIO_PROCESS, 0);
-
-        // Отправляем приоритет клиенту
-        sendto(sockfd, &priority, sizeof(int), 0, (struct sockaddr *)&client_addr, len);
+        close(sock);
     }
-
-    // Закрываем гнездо (обычно не достижимо из-за бесконечного цикла)
-    close(sockfd);
 
     return 0;
 }

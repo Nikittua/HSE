@@ -6,37 +6,36 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-int main() {
-    // Создаем гнездо в домене INET
-    int sockfd;
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("Ошибка создания гнезда");
+
+char message[] = "Hello there!\n";
+char buf[sizeof(message)];
+
+int main()
+{
+    int sock;
+    struct sockaddr_in addr;
+
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock < 0)
+    {
+        perror("socket");
         exit(1);
     }
 
-    // Задаем имя гнезду (необязательно в клиентской части)
-    struct sockaddr_in server_addr;
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(12345); // Замените на порт сервера
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Замените на IP-адрес сервера
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(3425); // или любой другой порт...
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    if(connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+    {
+        perror("connect");
+        exit(2);
+    }
 
-    // Определение идентификаторов системных процессов
-    pid_t pid = getpid();
-    pid_t ppid = getppid();
+    send(sock, message, sizeof(message), 0);
+    recv(sock, buf, sizeof(message), 0);
 
-    // Отправляем идентификаторы на сервер
-    sendto(sockfd, &pid, sizeof(pid_t), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
-    sendto(sockfd, &ppid, sizeof(pid_t), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
-
-    // Получаем ответ от сервера
-    int priority;
-    socklen_t len = sizeof(server_addr);
-    recvfrom(sockfd, &priority, sizeof(int), 0, (struct sockaddr *)&server_addr, &len);
-
-    printf("Получен приоритет от сервера: %d\n", priority);
-
-    // Закрываем гнездо
-    close(sockfd);
+    printf(buf);
+    close(sock);
 
     return 0;
 }

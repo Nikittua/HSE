@@ -18,7 +18,7 @@ int createSemaphore(key_t key) {
     int sem_id = semget(key, 1, IPC_CREAT | 0666); 
     if (sem_id == -1) {
         perror("semget");
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 
 
@@ -28,7 +28,7 @@ int createSemaphore(key_t key) {
     // Инициализация семафоров
     if (semctl(sem_id, 0, SETVAL, arg) == -1) {
         perror("semctl");
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 
     return sem_id;
@@ -40,10 +40,9 @@ void manipulateSemaphore(int sem_id, int op) {
     struct sembuf semaphore;
     semaphore.sem_num = 0; // Номер семафора, с которым мы работаем
     semaphore.sem_op = op;       // Операция: -1 для блокировки, 1 для разблокировки
-    semaphore.sem_flg = 0;       // Флаги (обычно 0)
 
     if (semop(sem_id, &semaphore, 1) == -1) {
         perror("semop");
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 }

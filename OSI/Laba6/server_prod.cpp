@@ -64,7 +64,7 @@ int main() {
         printf("Имя файла: %s, Время создания: %s", filename, ctime(&creation_time));
         filename = strtok(NULL, "\n");
     }
-    printf("\n")
+    printf("\n");
     printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);
 
 
@@ -74,13 +74,13 @@ int main() {
     // Удаление РОП
     if (shmctl(shm_id, IPC_RMID, 0) == -1) {
         perror("shmctl");
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 
     // Удаление семафора
     if (semctl(sem_id, 0, IPC_RMID) == -1) {
         perror("semctl");
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 
     return 0;

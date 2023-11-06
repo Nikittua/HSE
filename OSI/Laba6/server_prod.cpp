@@ -44,7 +44,7 @@ int main() {
 
     // Ожидание клиента
     printf("Ожидание клиента...\n");
-    manipulateSemaphore(sem_id, 0, -1); // Блокировка 0
+    manipulateSemaphore(sem_id,-1); // Блокировка 0
 
     struct shmid_ds shm_ds;
     if (shmctl(shm_id, IPC_STAT, &shm_ds) == -1) {

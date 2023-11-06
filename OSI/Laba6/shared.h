@@ -36,9 +36,9 @@ int createSemaphore(key_t key) {
 
 
 // Функция для работы с семафором
-void manipulateSemaphore(int sem_id, int sem_num, int op) {
+void manipulateSemaphore(int sem_id, int op) {
     struct sembuf semaphore;
-    semaphore.sem_num = sem_num; // Номер семафора, с которым мы работаем
+    semaphore.sem_num = 0; // Номер семафора, с которым мы работаем
     semaphore.sem_op = op;       // Операция: -1 для блокировки, 1 для разблокировки
     semaphore.sem_flg = 0;       // Флаги (обычно 0)
 

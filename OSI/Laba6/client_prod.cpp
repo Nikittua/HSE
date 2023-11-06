@@ -75,7 +75,7 @@ int main() {
     listELFExecutables(shared_memory);
 
     // Разблокировать сервер и заблокировать себя
-    manipulateSemaphore(sem_id, 0, 1); // разблокировка сервера
+    manipulateSemaphore(sem_id, 1); // разблокировка сервера
     // manipulateSemaphore(sem_id, SEM_CLIENT, -1);  // блокировка себя
     shmdt(shared_memory);
 

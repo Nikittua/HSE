@@ -16,7 +16,7 @@ time_t getFileCreationTime(const char *filename) {
     struct stat attr;
     if (stat(filename, &attr) == -1) {
         perror("stat");
-        exit(EXIT_FAILURE);
+        exit(1);
     }
     return attr.st_ctime;
 }
@@ -35,7 +35,7 @@ int main() {
     shm_id = shmget(shm_key, MSGSZ, IPC_CREAT | 0666);
     if (shm_id == -1) {
         perror("shmget");
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 
     // Присоединение к разделяемой области памяти
@@ -44,7 +44,7 @@ int main() {
 
     // Ожидание клиента
     printf("Ожидание клиента...\n");
-    manipulateSemaphore(sem_id, SEM_SERVER, -1); // Блокировка SEM_SERVER
+    manipulateSemaphore(sem_id, 0, -1); // Блокировка 0
 
     struct shmid_ds shm_ds;
     if (shmctl(shm_id, IPC_STAT, &shm_ds) == -1) {

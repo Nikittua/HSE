@@ -41,9 +41,26 @@ int main() {
     key_t shm_key = 10;
     int sem_id;
 
-    shm_id = shmget(shm_key, 0, 0);
+     int timewait = 60; // время ожидания создания РОП
+
+
+
+        printf("Ожидание создания РОП...\n");
+
+    // Ожидание создания очереди в течение 60 секунд
+    for (int i = 0; i < timewait; i++) {
+        // Пытаемся получить доступ к существующей РОП
+        shm_id = shmget(shm_key, 0, 0);
+        if (shm_id != -1) {
+            break; // Если РОП, выходим из цикла
+        }
+        
+        sleep(1); // Ждем 1 секунду перед следующей попыткой
+    }
+
     if (shm_id == -1) {
-        perror("shmget");
+        // Если не удалось получить доступ к РОП после 60 секунд, выходим с ошибкой
+        fprintf(stderr, "Не удалось получить доступ к РОП\n");
         exit(1);
     }
 
@@ -58,7 +75,7 @@ int main() {
     listELFExecutables(shared_memory);
 
     // Разблокировать сервер и заблокировать себя
-    manipulateSemaphore(sem_id, SEM_SERVER, 1); // разблокировка сервера
+    manipulateSemaphore(sem_id, 0, 1); // разблокировка сервера
     // manipulateSemaphore(sem_id, SEM_CLIENT, -1);  // блокировка себя
     shmdt(shared_memory);
 

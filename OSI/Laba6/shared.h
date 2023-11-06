@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SEM_SERVER 0
+
 
 union semun {
     int val;               // значение для SETVAL
@@ -26,7 +26,7 @@ int createSemaphore(key_t key) {
     arg.val = 0; // Установка начального значения семафора
 
     // Инициализация семафоров
-    if (semctl(sem_id, SEM_SERVER, SETVAL, arg) == -1) {
+    if (semctl(sem_id, 0, SETVAL, arg) == -1) {
         perror("semctl");
         exit(EXIT_FAILURE);
     }

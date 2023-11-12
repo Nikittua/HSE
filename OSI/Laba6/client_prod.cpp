@@ -21,7 +21,7 @@ void listELFExecutables(char *output) {
 
     char result[256];
 
-    while (fgets(result, sizeof(result), fp) != NULL) {
+    while (fgets(result, sizeof(result), fp) != 0) {
         size_t len = strlen(result);
         if (len > 0 && result[len - 1] == '\n') {
             result[len - 1] = '\0';
@@ -46,7 +46,7 @@ int main() {
 
     printf("Ожидание создания РОП...\n");
 
-    // Ожидание создания очереди в течение 60 секунд
+    // Ожидание создания РОП в течение 60 секунд
     for (int i = 0; i < timewait; i++) {
         // Пытаемся получить доступ к существующей РОП
         shm_id = shmget(shm_key, 0, 0);
@@ -63,19 +63,19 @@ int main() {
         exit(1);
     }
 
-
+    // Получаем доступ к существущему набору семафоров
     if ((sem_id = semget(shm_key, 0, 0)) == -1) {
         perror("semget");
         exit(1);
     }
 
-    char *shared_memory = (char *)shmat(shm_id, 0, 0);
+    char *shared_memory = (char *)shmat(shm_id, 0, 0); // присоединение к РОП с возможностью чтения и записи
 
     listELFExecutables(shared_memory);
 
-    // Разблокировать сервер и заблокировать себя
+    // Разблокировать сервер
     manipulateSemaphore(sem_id, 1); // разблокировка сервера
-    // manipulateSemaphore(sem_id, SEM_CLIENT, -1);  // блокировка себя
+
     shmdt(shared_memory);
 
     return 0;

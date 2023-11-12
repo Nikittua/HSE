@@ -25,7 +25,7 @@ time_t getFileCreationTime(const char *filename) {
 
 int main() {
     int shm_id; // Идентификатор разделяемой области памяти
-    key_t shm_key = 10; // Ключ для доступа к РОП
+    key_t shm_key = 10;
     int sem_id;
 
     // Создание и инициализация семафора
@@ -42,9 +42,10 @@ int main() {
     char *shared_memory_server = (char *)shmat(shm_id, 0, 0);
     memset(shared_memory_server, 0, MSGSZ);
 
+
     // Ожидание клиента
     printf("Ожидание клиента...\n");
-    manipulateSemaphore(sem_id,-1); // Блокировка 0
+    manipulateSemaphore(sem_id,-1); // Блокировка 
 
     struct shmid_ds shm_ds;
     if (shmctl(shm_id, IPC_STAT, &shm_ds) == -1) {
@@ -59,10 +60,10 @@ int main() {
 
     // Обработка имен файлов и вывод времени их создания
     char *filename = strtok(shared_memory_server, "\n");
-    while (filename != NULL) {
+    while (filename != 0) {
         time_t creation_time = getFileCreationTime(filename);
         printf("Имя файла: %s, Время создания: %s", filename, ctime(&creation_time));
-        filename = strtok(NULL, "\n");
+        filename = strtok(0, "\n");
     }
     printf("\n");
     printf("Идентификатор процесса, последний отсоединившийся от РОП: %d\n", shm_ds.shm_lpid);

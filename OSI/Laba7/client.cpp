@@ -1,69 +1,47 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <iostream>
+#include <cstdlib>
 #include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
+#include <cstring>
 #include <sys/types.h>
-#include <dirent.h>
-#include <ctype.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 int main() {
-    int sock;
-    struct sockaddr_in addr;
-    char buf[4096];
+    int sock_id, ret;
+    struct sockaddr_in server;
+    char buf[3000];
 
-    // Определение идентификаторов системных процессов
-    DIR *dir;
-    struct dirent *entry;
 
-    dir = opendir("/proc");
-    if (dir == NULL) {
-        perror("Ошибка открытия каталога /proc");
+    sock_id = socket(AF_INET, SOCK_DGRAM, 0); //создаем дискриптор сокета домена интернета IPv4 с типом сокета 
+                                           //SOCK_DGRAM. 0 ставим чтобы выбрать протокол
+                                           // по умолчанию для данного домена и типа сокета   
+    if (sock_id < 0) {
+        perror("Failed to get sock_id");
         exit(1);
     }
 
-    memset(buf, 0, sizeof(buf));
+    server.sin_family = AF_INET; // указывам домен
+    server.sin_addr.s_addr = INADDR_ANY; // адрес IPv4 INADDR_ANY - возможность принимать пакеты с любого сетевого интерфейса, установленного в системе
+    server.sin_port = htons(0x1234); // порт взяли из преобразования аппаратного(host) в сетевой(network) s (short)
 
-    while ((entry = readdir(dir)) != NULL) {
-        if (isdigit(entry->d_name[0])) {
-            int pid = atoi(entry->d_name);
-            if (pid <= 1000) {
-                snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "PID: %d\n", pid);
-            }
-        }
+    FILE *pipe = popen("ps -u root | awk '{print $1}' | sed '1d'", "r"); // записываем в pipe результат выполнения команды
+    ret = fread(buf, 1, sizeof(buf), pipe);// возвращает количество действительно считанных объектов
+
+    ret = sendto(sock_id, buf, ret, 0, (struct sockaddr*)&server, sizeof(server)); // отправляем серверу количество байтов ret в buf.
+    if (ret < 0) {
+        perror("Failed to send data");
+        exit(1);
     }
 
-    closedir(dir);
-
-    // Создаем гнездо
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) {
-        perror("socket");
-        exit(2);
+    ret = recvfrom(sock_id, buf, sizeof(buf), 0, 0, 0); // получаем данные от сервера и записываем их в buf
+    if (ret < 0) {
+        perror("Failed to recv data");
+        exit(1);
     }
 
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(3425); 
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); 
+    buf[ret] = 0;
 
-    // Устанавливаем соединение с сервером
-    if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        perror("connect");
-        exit(3);
-    }
-
-    // Отправляем данные на сервер
-    send(sock, buf, strlen(buf), 0);
-
-    // Получаем ответ от сервера
-    recv(sock, buf, sizeof(buf), 0);
-
-    printf("Ответ от сервера:\n%s\n", buf);
-
-    // Закрываем гнездо
-    close(sock);
+    std::cout << "Server reply: " << buf << std::endl;
 
     return 0;
 }
-

@@ -16,12 +16,13 @@ unsigned proccess_pids(void *data)
     char system_buf[100];
 	char tmp[3000];
 	unsigned offset = 0;
+	FILE *pipe;
 
 	while (pid) {
     // Формируем команду для получения информации о процессе
     snprintf(system_buf, sizeof(system_buf), "ps -o nice='' -p %s", pid);
     // Открываем pipe для выполнения команды
-    FILE *pipe = popen(system_buf, "r");
+    pipe = popen(system_buf, "r");
 
     // Считываем результат выполнения команды в буфер tmp
     offset += fread(tmp + offset, 1, sizeof(tmp) - offset, pipe);
@@ -32,7 +33,7 @@ unsigned proccess_pids(void *data)
 
     // Получаем следующий PID
     pid = strtok(NULL, "\n");
-}
+	}
 
 	memcpy(data, tmp, offset); // перезаписываем данные в data вместе со сдвигом
 
@@ -53,9 +54,9 @@ int main(void)
 		exit(1);
 	}
 
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port = htons(0x1234);
+	addr.sin_family = AF_INET; // AF_INET - Домен Интернета IPv4
+	addr.sin_addr.s_addr = INADDR_ANY; // INADDR_ANY - адресам всех сетевых интерфейсов в системе
+	addr.sin_port = htons(6969);  // номер порта host to network short
 
 // ассоуциируем адрес с сокетом
 	ret = bind(sock_id, (struct sockaddr *) &addr, sizeof(addr));

@@ -10,6 +10,8 @@ int main() {
     int sock_id, ret;
     struct sockaddr_in server;
     char buf[3000];
+    unsigned server_size;
+    FILE *pipe;
 
 
     sock_id = socket(AF_INET, SOCK_DGRAM, 0); //создаем дискриптор сокета домена интернета IPv4 с типом сокета 
@@ -22,9 +24,9 @@ int main() {
 
     server.sin_family = AF_INET; // указывам домен
     server.sin_addr.s_addr = INADDR_ANY; // адрес IPv4 INADDR_ANY - возможность принимать пакеты с любого сетевого интерфейса, установленного в системе
-    server.sin_port = htons(0x1234); // порт взяли из преобразования аппаратного(host) в сетевой(network) s (short)
+    server.sin_port = htons(6969); // порт взяли из преобразования аппаратного(host) в сетевой(network) s (short)
 
-    FILE *pipe = popen("ps -u root | awk '{print $1}' | sed '1d'", "r"); // записываем в pipe результат выполнения команды
+    pipe = popen("ps -u root | awk '{print $1}' | sed '1d'", "r"); // записываем в pipe результат выполнения команды
     ret = fread(buf, 1, sizeof(buf), pipe);// возвращает количество действительно считанных объектов
 
     ret = sendto(sock_id, buf, ret, 0, (struct sockaddr*)&server, sizeof(server)); // отправляем серверу количество байтов ret в buf.
@@ -33,7 +35,7 @@ int main() {
         exit(1);
     }
 
-    ret = recvfrom(sock_id, buf, sizeof(buf), 0, 0, 0); // получаем данные от сервера и записываем их в buf
+    ret = recvfrom(sock_id, buf, sizeof(buf), 0, (struct sockaddr *)&server, &server_size); // получаем данные от сервера и записываем их в buf
     if (ret < 0) {
         perror("Failed to recv data");
         exit(1);

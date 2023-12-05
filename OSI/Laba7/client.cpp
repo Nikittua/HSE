@@ -45,7 +45,6 @@ int main() {
         exit(1);
     }
 
-    buf[ret] = 0;
 
     std::cout << "Server reply: " << buf << std::endl;
 

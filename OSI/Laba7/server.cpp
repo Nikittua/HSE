@@ -4,7 +4,7 @@
 #include <string.h> // функции для работы со строками
 #include <sys/types.h> // содержит определения различных типов данных
 #include <sys/socket.h> // предоставляет функции и структуры данных для программ, использующих сокеты
-#include <arpa/inet.h> // функции для преобразования IP-адресов
+#include <arpa/inet.h> // для htons
 #include <netinet/in.h> // содержит определения структур и констант для работы с сетевыми протоколами
 #include <assert.h> // для проверки кода и ошибок
 
@@ -29,7 +29,6 @@ unsigned proccess_pids(void *data)
     
     // Закрываем pipe
     pclose(pipe);
-    assert(offset < 3000);
 
     // Получаем следующий PID
     pid = strtok(NULL, "\n");
